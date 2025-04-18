@@ -9,12 +9,29 @@ import mediapipe as mp
 import time 
 
 
-
 camera = cv2.VideoCapture(0)
 
 app = Flask(__name__)
 
-model = load_model('fruit_predictor.h5')
+import requests
+
+def download_model_if_needed():
+    model_path = "fruit_predictor.h5"
+    if not os.path.exists(model_path):
+        print("Downloading model from Google Drive...")
+        url = "https://drive.google.com/uc?export=download&id=1xmnRCX8uRVyI8ixQ7g_PkmM42U_-pL6c"
+        response = requests.get(url, stream=True)
+        with open(model_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+        print("Model downloaded successfully.")
+    else:
+        print("Model already exists.")
+
+download_model_if_needed()
+model = load_model("fruit_predictor.h5")
+
 
 class_labels = [
     'apple fruit', 'banana fruit', 'cherry fruit', 'chickoo fruit', 'grapes fruit',
